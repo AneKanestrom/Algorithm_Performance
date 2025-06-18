@@ -45,42 +45,57 @@ def merge_sort(arr):
             k += 1
     return arr
 
-#Quick Sort (O(n log n))
+#Quick Sort In-place (O(n log n))
 def quick_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quick_sort(left) + middle + quick_sort(right)   
+    def _quick_sort(arr, low, high):
+        if low < high:
+            pi = partition(arr, low, high)
+            _quick_sort(arr, low, pi - 1)
+            _quick_sort(arr, pi + 1, high)
+    
+    def partition(arr, low, high):
+        pivot = arr[high]
+        i = low - 1
+        for j in range(low, high):
+            if arr[j] <= pivot:
+                i += 1
+                arr[i], arr[j] = arr[j], arr[i]
+        arr[i + 1], arr[high] = arr[high], arr[i + 1]
+        return i + 1
+    
+    _quick_sort(arr, 0, len(arr) - 1)
+    return arr
 
 #Test the sorting algorithms
 def test_sorting_algorithms():
-    sizes = [100, 500, 1000, 5000, 10000]
+    sizes = [100, 500, 1000, 2000, 3000]  # Reduced max size
     insertion_times = []
     merge_times = []
     quick_times = []
 
     for size in sizes:
         arr = [random.randint(1, 10000) for _ in range(size)]
-
+        arr_copy = arr.copy()  # Create one copy per test
+        
         # Measure Insertion Sort
-        start_time = time.time()
-        insertion_sort(arr.copy())
-        insertion_times.append(time.time() - start_time)
-
+        start = time.perf_counter()
+        insertion_sort(arr_copy.copy())  # New copy for each sort
+        insertion_times.append(time.perf_counter() - start)
+        
         # Measure Merge Sort
-        start_time = time.time()
-        merge_sort(arr.copy())
-        merge_times.append(time.time() - start_time)
-
+        start = time.perf_counter()
+        merge_sort(arr_copy.copy())
+        merge_times.append(time.perf_counter() - start)
+        
         # Measure Quick Sort
-        start_time = time.time()
-        quick_sort(arr.copy())
-        quick_times.append(time.time() - start_time)
+        start = time.perf_counter()
+        quick_sort(arr_copy.copy())
+        quick_times.append(time.perf_counter() - start)
 
-    # Plotting the results
+        print(f"Completed tests for size: {size}")
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
     plt.plot(sizes, insertion_times, label='Insertion Sort', marker='o')
     plt.plot(sizes, merge_times, label='Merge Sort', marker='o')
     plt.plot(sizes, quick_times, label='Quick Sort', marker='o')
@@ -92,9 +107,5 @@ def test_sorting_algorithms():
     plt.grid(True)
     plt.show()
 
-    
-
-
-
-
-
+if __name__ == "__main__":
+    test_sorting_algorithms()
